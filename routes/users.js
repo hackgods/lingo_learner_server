@@ -142,4 +142,38 @@ router.put("/profile", passport.authenticate("jwt", { session: false }), async (
 
 
 
+router.put('/update-points', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    // Decode the JWT and extract the email payload
+    const token = req.headers.authorization.split(' ')[1]; // Assuming the JWT is provided in the "Authorization" header as "Bearer <token>"
+    const decoded = jwt.verify(token, process.env.JWTPVTKEY);
+    const userEmail = decoded.email;
+
+    // Retrieve the user's profile information from the database based on the email
+    const userProfile = await User.findOne({ email: userEmail });
+
+    // If the profile doesn't exist, return an error
+    if (!userProfile) {
+      return res.status(404).json({ error: 'User profile not found' });
+    }
+
+    // Check if the request body includes a 'pointsToAdd' field
+    if (!req.body.points || typeof req.body.points !== 'number') {
+      return res.status(400).json({ error: 'Invalid points value' });
+    }
+
+    // Add the pointsToAdd value to the existing points
+    userProfile.points += req.body.points;
+
+    // Save the updated user profile
+    await userProfile.save();
+
+    // Return the updated user's profile information
+    res.json(userProfile);
+  } catch (error) {
+    // Handle any errors that occur during the points update process
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

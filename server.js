@@ -1,6 +1,8 @@
 const express = require('express');
 const userRoutes = require('./routes/users.js');
 const gameRoutes = require('./routes/games.js');
+const optionRoutes = require('./routes/options.js');
+
 var bodyParser = require('body-parser');
 require("dotenv").config();
 const cors = require("cors");
@@ -23,6 +25,8 @@ app.use(cors());
 
 app.use(`${apiDir}/users`,userRoutes);
 app.use(`${apiDir}/games`,gameRoutes);
+app.use(`${apiDir}/options`,optionRoutes);
+
 
 app.listen(PORT,function() {
     console.log(`Server started on ${PORT}`);
